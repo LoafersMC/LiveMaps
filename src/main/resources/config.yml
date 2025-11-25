@@ -1,0 +1,14 @@
+# Configuration for the LiveMaps
+# -----------------------------
+
+# How often (in server ticks) the player position cache should be recalculated.
+# 20 ticks = 1 second.
+update-interval-ticks: 5
+
+# Stores the chosen cursor color for players.
+# ...
+player-colors: {}
+
+# If true, the name of the map item (if set) will appear as a floating nameplate
+# when the map is placed in an item frame. Default is FALSE (hidden).
+show-item-frame-nameplate: false

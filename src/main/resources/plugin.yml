@@ -1,0 +1,32 @@
+name: LiveMaps
+version: 2.1
+main: com.example.livemap.LiveMaps
+api-version: 1.20
+authors: [Loafers]
+description: A high-performance, live map tracker.
+commands:
+  livemap:
+    description: Main command for Live Map operations (creation, configuration, help).
+    aliases: [lm]
+    usage: |
+      /livemap <subcommand>
+      /livemap create - Create a new live map at your current location.
+      /livemap grid - Open the 5x5 map creation grid GUI.
+      /livemap use - Apply the live map renderer to the map you are holding.
+      /livemap togglenames - Toggle player name tags (Config: livemap.config).
+      /livemap toggley - Toggle vertical (Y-Level) tracking (Config: livemap.config).
+      /livemap setupdaterate <ticks> - Set the map update speed (Config: livemap.config).
+      /livemap refresh - Force refresh all map renders.
+      /livemap reload - Reload the plugin configuration.
+      /livemap togglenameplate - Toggle the item frame nameplate visibility (Config: livemap.config).
+    permission: livemap.use
+permissions:
+  livemap.use:
+    default: op
+    description: Allows use of the main /livemap command and /livemap use.
+  livemap.create:
+    default: op
+    description: Allows creation of new live maps (/livemap create, /livemap grid).
+  livemap.config:
+    default: op
+    description: Allows configuration commands (togglenames, toggley, setupdaterate, reload, refresh).
