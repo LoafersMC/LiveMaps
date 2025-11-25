@@ -22,6 +22,7 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
@@ -47,9 +48,10 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 // The main plugin class
-public class LiveMaps extends JavaPlugin implements Listener {
+public class LiveMaps extends JavaPlugin implements Listener, TabCompleter {
 
     // The scale used for /livemap create default. Used as a fallback and constant.
     // Scale.values()[0] is the max zoom (1:1, 128x128 blocks).
@@ -121,6 +123,13 @@ public class LiveMaps extends JavaPlugin implements Listener {
         this.scaleSelectionKey = new NamespacedKey(this, "map-scale-select");
 
         Bukkit.getPluginManager().registerEvents(this, this);
+
+        // --- NEW: Register Command Executor and Tab Completer ---
+        if (this.getCommand("livemap") != null) {
+            this.getCommand("livemap").setExecutor(this);
+            this.getCommand("livemap").setTabCompleter(this);
+        }
+        // --------------------------------------------------------
 
         getLogger().info("LiveMaps enabled. Initializing existing live maps...");
         reinitializeMaps();
@@ -241,6 +250,69 @@ public class LiveMaps extends JavaPlugin implements Listener {
             case "reload": return handleReloadCommand(sender, label);
             default: sender.sendMessage(ChatColor.RED + "Unknown subcommand: /" + label + " " + args[0]); return handleHelpCommand(sender, label);
         }
+    }
+
+    // --- COMMAND TAB COMPLETION ---
+
+    @Override
+    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+        if (!command.getName().equalsIgnoreCase("livemap")) {
+            return Collections.emptyList();
+        }
+
+        if (args.length == 1) {
+            // Suggestions for the first argument (subcommand)
+            List<String> subcommands = new ArrayList<>();
+            subcommands.add("create");
+            subcommands.add("grid");
+            subcommands.add("use");
+            subcommands.add("help");
+            subcommands.add("setupdaterate");
+            subcommands.add("togglenames");
+            subcommands.add("toggley");
+            subcommands.add("togglenameplate");
+            subcommands.add("refresh");
+            subcommands.add("reload");
+            // "locate" is listed in onCommand but marked as "Not implemented," so we exclude it here.
+
+            return subcommands.stream()
+                    .filter(s -> s.startsWith(args[0].toLowerCase(Locale.ROOT)))
+                    .collect(Collectors.toList());
+
+        } else if (args.length == 2) {
+            // Suggestions for the second argument based on the first argument
+            String subCommand = args[0].toLowerCase(Locale.ROOT);
+
+            switch (subCommand) {
+                case "create":
+                    // Suggest map scales 0, 1, 2, 3, 4
+                    List<String> scales = new ArrayList<>();
+                    for (int i = 0; i <= 4; i++) {
+                        scales.add(String.valueOf(i));
+                    }
+                    return scales.stream()
+                            .filter(s -> s.startsWith(args[1]))
+                            .collect(Collectors.toList());
+
+                case "setupdaterate":
+                    // Suggest common values for the update rate (ticks)
+                    List<String> rates = new ArrayList<>();
+                    rates.add("5");   // Default (fast)
+                    rates.add("20");  // 1 second
+                    rates.add("40");  // 2 seconds
+                    rates.add("100"); // 5 seconds
+                    return rates.stream()
+                            .filter(s -> s.startsWith(args[1]))
+                            .collect(Collectors.toList());
+
+                default:
+                    // No more arguments expected for other commands
+                    return Collections.emptyList();
+            }
+        }
+
+        // No suggestions for more than 2 arguments
+        return Collections.emptyList();
     }
 
     // --- CREATION COMMAND HANDLERS ---
